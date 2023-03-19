@@ -1,0 +1,48 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+p {
+  margin-bottom: 5px;
+  font-weight: bold;
+  font-size: large;
+}
+
+.App {
+  min-width: 1280px;
+}
+
+.row {
+  display: flex;
+}
+
+.col {
+  flex: 1;
+  text-align: left;
+  padding: 2em;
+  border: solid;
+}
+
+.form-container {
+  padding-bottom: 18px;
+}
+
+.assistant-input {
+  margin-bottom: 10px;
+}
+
+.add-input {
+  padding: 8px 25px;
+}
+
+.remove {
+  margin-left: 5px;
+  padding: 0.6em 1.2em;
+  background-color: rgb(180, 29, 29);
+}
+
+ul, ol {
+  margin-top: 0px;
+}
