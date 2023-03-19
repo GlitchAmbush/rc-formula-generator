@@ -6,17 +6,24 @@ function App() {
   // Sets/States
   const [name, setName] = useState()
   const [assistant, setAssistant] = useState([{ assistant: '' }])
-  const [displayAssistant, setDisplayAssistant] = useState()
-  const [itemName, setItemName] = useState()
+  const [displayAssistant, setDisplayAssistant] = useState('[ If Applicable ]')
+  const [itemName, setItemName] = useState('Item Name')
   const [intention, setIntention] = useState()
-  const [tools, setTools] = useState([{tool: ''}])
+  const [toolSkill, setToolSkill] = useState('Tool, Tool; Skill')
+  const [exotic, setExotic] = useState()
+  const [material, setMaterial] = useState()
+  const [directions, setDirections] = useState()
+  const [itemType, setItemType] = useState()
+  const [itemRarity, setItemRarity] = useState()
+  const [itemDesc, setItemDesc] = useState()
+  const [attunement, setAttunement] = useState()
 
   // Functions
   const makeOption = (item) => {
     return <option key={item} value={item}>{item}</option>
   }
   
-  const displayList = dictionary => {
+  const displayNames = dictionary => {
     var list = ""
     var i = 0
     for (var key of dictionary) {
@@ -27,6 +34,33 @@ function App() {
         list = list.concat(`${Object.values(key)}, `)
       }
     }
+    return list
+  }
+
+  const displayToolSkill = (toolArray, skillArray) => {
+    var list = ""
+    for (var i = 0, len = toolArray.length; i < len; i++) {
+      if (i == toolArray.length-1) {
+        if (skillArray[0] == "None") {
+          list = list.concat(`${toolArray[i]}`)
+        } else {
+          list = list.concat(`${toolArray[i]}; `)
+        }
+      } else {
+        list = list.concat(`${toolArray[i]}, `)
+      }
+    }
+
+    if (skillArray[0] != "None") {
+      for (var i = 0, len = skillArray.length; i < len; i++) {
+        if (i == skillArray.length-1) {
+          list = list.concat(`${skillArray[i]}`)
+        } else {
+          list = list.concat(`${skillArray[i]}, `)
+        }
+      }
+    }
+
     return list
   }
   
@@ -47,12 +81,28 @@ function App() {
     }
   }
 
-  const submit = (e) => {
-    e.preventDefault()
-    setName((name) => document.getElementById("name").value)
-    setDisplayAssistant((displayAssistant) => displayList(assistant))
-    setItemName((itemName) => document.getElementById("item").value)
-    setIntention((intention) => checkRadio())
+  const getSelect = (select) => {
+    var result = []
+    var options = select && select.options
+    var opt
+
+    for (var i = 0, len = options.length; i < len; i++) {
+      opt = options[i]
+
+      if (opt.selected) {
+        result.push(opt.value || opt.text)
+      }
+    }
+
+    return result
+  }
+
+  const getCheck = (check) => {
+    if (check) {
+      return ' (requires attunement)'
+    } 
+
+    return ""
   }
 
   const addAssistantFields = () => {
@@ -69,6 +119,18 @@ function App() {
     }
   }
 
+  const submit = (e) => {
+    e.preventDefault()
+    const toolList = getSelect(document.getElementById('tools'))
+    const skillList = getSelect(document.getElementById('skills'))
+
+    setName((name) => document.getElementById("name").value)
+    setDisplayAssistant((displayAssistant) => displayNames(assistant))
+    setItemName((itemName) => document.getElementById("item").value)
+    setIntention((intention) => checkRadio())
+    setToolSkill((toolSkill) => displayToolSkill(toolList, skillList))
+    setAttunement((attunement) => getCheck(document.getElementById("attunement").checked))
+  }
 
   // Main App
   return (
@@ -116,6 +178,15 @@ function App() {
           <div>
             <p>Item Being Researched</p>
             <input className='text-input' placeholder='Item Name' id="item" />
+            <div style={{paddingTop: "10px"}}>
+              Rarity: <select className='small-input' style={{marginRight: "20px"}} id="rarity">
+                <option value="common">Common</option>
+                <option value="uncommon">Uncommon</option>
+                <option value="rare">Rare</option>
+                <option value="very rare">Very Rare</option>
+              </select>
+              Attunement? <input type="checkbox" id="attunement"/>
+            </div>
           </div>
 
           <div>
@@ -128,29 +199,14 @@ function App() {
           </div>
 
           <div>
-            <p>Tools</p>
-            <select className="text-input modular-input" id="tools">{toolOptions.map(makeOption)}</select><br />
-            <select className="text-input modular-input" id="tools">{skillOptions.map(makeOption)}</select><br />
-            
-            {tools.map((input, index) => {
-              if (index == 0) {
-                return (
-                  <div key={index}>
-                    <select className="text-input modular-input" id="tools" value={input.tools}>{toolOptions.map(makeOption)}</select>
-                  </div>
-                )
-              }
+            <p>Tools / Skills</p>
+            <p style={{fontSize: "15px", fontWeight: 1}}>Note: Use CTRL/CMD to select multiple.</p>
+            <select className="text-input modular-input" id="tools" multiple>{toolOptions.map(makeOption)}</select><br />
+            <select className="text-input modular-input" id="skills" multiple>{skillOptions.map(makeOption)}</select><br />
+          </div>
 
-              return (
-                <div key={index}>
-                  <select className="text-input modular-input" id="tools" value={input.tools}>{toolOptions.map(makeOption)}</select>
-                  <button className='remove'>Remove</button>
-                </div>
-              )
-            })}
-
-            <button className="add-input">Add Tool</button>
-            <button className="add-input" style={{marginLeft: "5px"}}>Add Skill</button>
+          <div>
+            <p>Exotic</p>
           </div>
           <button onClick={submit}>Update</button>
         </div>
@@ -167,7 +223,9 @@ function App() {
           <br />
           <b>FORMULA</b> <br />
           <u>Tools</u> <br />
-          <li>Tool, Tool?, Skill</li> <br />
+          <ul>
+            <li>{toolSkill}</li>
+          </ul>
 
           <u>Materials</u>
           <ul>
@@ -183,8 +241,8 @@ function App() {
             <li>Add your little special twists, it can be more steps.</li>
           </ol>
 
-          <b>Item Name</b><br />
-          <i>Item Type, Rarity (requires attunement?)</i><br />
+          <b>{itemName}</b><br />
+          <i>Item Type, Rarity{attunement}</i><br />
           Flavor description (Please don't go overboard)<br />
           <br />
           Item description, mechanics, etc etc.<br />

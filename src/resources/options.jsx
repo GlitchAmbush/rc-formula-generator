@@ -1,5 +1,4 @@
 export const toolOptions = [
-    "Select Tool",
     "Alchemist's supplies",
     "Brewer's supplies",
     "Calligrapher's supplies",
@@ -20,9 +19,21 @@ export const toolOptions = [
 ]
 
 export const skillOptions = [
-    "Select Skill",
+    "None",
+    "Animal Handling",
     "Arcana",
+    "Athletics",
+    "Deception",
+    "History",
+    "Insight",
+    "Intimidation",
+    "Investigation",
     "Medicine",
     "Nature",
-    "Religion"
+    "Perception",
+    "Performance",
+    "Religion",
+    "Sleight of Hand",
+    "Stealth",
+    "Survival"
 ]
