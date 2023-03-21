@@ -9,26 +9,30 @@ import {
   displayToolSkill,
   checkRadio,
   getSelect,
-  getCheck
+  getCheck,
+  calculateBudget,
+  printMaterials
 } from './resources/functions.jsx'
 
 function App() {
   // Sets/States
-  const [name, setName] = useState()
+  const [name, setName] = useState("Asfi Angelis")
   const [assistant, setAssistant] = useState([{ assistant: '' }])
-  const [displayAssistant, setDisplayAssistant] = useState('[ If Applicable ]')
-  const [itemName, setItemName] = useState('Item Name')
-  const [intention, setIntention] = useState()
-  const [toolSkill, setToolSkill] = useState('Tool, Tool; Skill')
-  const [exotic, setExotic] = useState()
-  const [material, setMaterial] = useState([{ material: '', gold: ''}])
+  const [displayAssistant, setDisplayAssistant] = useState('Alisha, Lumina')
+  const [itemName, setItemName] = useState('The Golden Pan')
+  const [intention, setIntention] = useState("One-Off")
+  const [toolSkill, setToolSkill] = useState("Smith's tools; Arcana")
+  const [exotic, setExotic] = useState("Clockwork Defender Head")
+  const [material, setMaterial] = useState([{ material: '', gold: '' }])
+  const [materialDisplay, setMaterialDisplay] = useState(<li>Pan worth 100gp</li>)
   const [directions, setDirections] = useState([{ direction: ''}])
-  const [itemType, setItemType] = useState('Item Type')
-  const [itemRarity, setItemRarity] = useState('Rarity')
+  const [itemType, setItemType] = useState('wonderous item (pan)')
+  const [itemRarity, setItemRarity] = useState('common')
   const [itemDesc, setItemDesc] = useState()
-  const [attunement, setAttunement] = useState('(requires attunement?)')
+  const [attunement, setAttunement] = useState()
   const [goldCost, setGoldCost] = useState(100)
-  const [cr, setCR] = useState("1 to 3")
+  const [crRange, setCRRange] = useState("1 to 3")
+  const [cr, setCR] = useState("CR 1")
 
   const calculateItemRequiremenets = (event) => {
     var cr = ''
@@ -71,7 +75,7 @@ function App() {
         break
     }
 
-    setCR(cr)
+    setCRRange(cr)
     setGoldCost(goldCost)
   }
 
@@ -95,6 +99,26 @@ function App() {
     }
   }
 
+  const handleMaterialChange = (index, event) => {
+    let data = [...material]
+    data[index][event.target.name] = event.target.value
+    setMaterial(data)
+  }
+
+  const addMaterialFields = () => {
+    let newField = { material: '', gold: '' }
+    
+    setMaterial([...material, newField])
+  }
+
+  const removeMaterialFields = (index) => {
+    let data = [...material]
+    if (index != 0) {
+        data.splice(index, 1)
+        setMaterial(data)
+    }
+  }
+
   const submit = (e) => {
     e.preventDefault()
     const toolList = getSelect(document.getElementById('tools'))
@@ -107,6 +131,11 @@ function App() {
     setToolSkill((toolSkill) => displayToolSkill(toolList, skillList))
     setAttunement((attunement) => getCheck(document.getElementById("attunement").checked))
     setItemType((itemType) => document.getElementById("itemType").value)
+    setCR((cr) => document.getElementById("cr").value)
+    setExotic((exotic) => document.getElementById("exotic").value)
+    setMaterialDisplay((materialDisplay) => printMaterials(material))
+
+    console.log(material[0])
   }
 
   // Main App
@@ -125,14 +154,14 @@ function App() {
               if (index == 0) {
                 return (
                   <div key={index}>
-                  <input
-                    className="text-input modular-input"
-                    name="assistant"
-                    placeholder='Assistant Name'
-                    value={input.assistant}
-                    onChange={event => handleAssistantChange(index, event)}
-                  />
-                </div>
+                    <input
+                      className="text-input modular-input"
+                      name="assistant"
+                      placeholder='Assistant Name'
+                      value={input.assistant}
+                      onChange={event => handleAssistantChange(index, event)}
+                    />
+                  </div>
                 )
               }
               
@@ -191,14 +220,59 @@ function App() {
 
           <div>
             <p>Materials</p>
-            Exotic CR: {cr} <br />
-            Gold Cost: <NumericFormat value={goldCost} displayType='text' thousandSeparator=' '></NumericFormat>gp <br />
-            Current Budget: <NumericFormat value={goldCost} displayType='text' thousandSeparator=' '></NumericFormat>gp <br />
-            <input className='text-input' id="monster" style={{width: "45%", marginRight: "5px"}} placeholder='Exotic: Monster from Books, no HB' />
-            <select className='text-input' id="cr" style={{ width: "24%" }}>{makeCROption().map(makeOption)}</select><br />
+            Exotic CR: {crRange} <br />
+            Gold Cost: <NumericFormat value={goldCost} displayType='text' thousandSeparator=' ' />gp <br />
+            Current Budget: <NumericFormat value={calculateBudget(material, goldCost)} displayType='text' thousandSeparator=' ' />gp <br />
+            <input className='text-input' id="exotic" style={{width: "45%", marginRight: "5px"}} placeholder='Exotic: Monster from Books, no HB' />
+            <select className='text-input' id="cr" style={{ width: "24%" }}>{makeCROption().map(makeOption)}</select>
+          
+            {material.map((input, index) => {
+              if (index == 0) {
+                return (
+                  <div key={index}>
+                    <input
+                      className='text-input'
+                      name="material"
+                      placeholder='Flavor; Material Name'
+                      style={{ width: "45%", marginRight: "5px", marginTop: "10px" }}
+                      value={input.material}
+                      onChange={event => handleMaterialChange(index, event)}
+                    />
+                    <input
+                      className='text-input'
+                      name="gold"
+                      placeholder='Gold Cost (GP)'
+                      style={{ width: "20%" }}
+                      value={input.gold}
+                      onChange={event => handleMaterialChange(index, event)}
+                    />
+                  </div>
+                )
+              }
 
-            <input className='text-input' placeholder='Flavor; Material Name' style={{ width: "45%", marginRight: "5px", marginTop: "10px" }} />
-            <input className='text-input' placeholder='Gold Cost (GP)' style={{ width: "20%" }}/>
+              return (
+                <div key={index}>
+                  <input
+                    className='text-input'
+                    name="material"
+                    placeholder='Flavor; Material Name'
+                    style={{ width: "45%", marginRight: "5px", marginTop: "10px" }}
+                    value={input.material}
+                    onChange={event => handleMaterialChange(index, event)}
+                  />
+                  <input
+                    className='text-input'
+                    name="gold"
+                    placeholder='Gold Cost (GP)'
+                    style={{ width: "20%" }}
+                    value={input.gold}
+                    onChange={event => handleMaterialChange(index, event)}
+                  />
+                  <button className='remove' onClick={() => removeMaterialFields(index)}>Remove</button>
+                </div>
+              )
+            })}
+            <button className="add-input" onClick={addMaterialFields}>Add Material</button>
           </div>
 
           <button onClick={submit}>Update</button>
@@ -221,9 +295,9 @@ function App() {
           </ul>
 
           <u>Materials</u>
-          <ul>
-            <li><i>Exotic:</i> Monster from the books, no Homebrew (CR #)</li>
-            <li>#### gp (Material flavor)</li>
+          <ul id="materialList">
+            <li><i>Exotic:</i> {exotic} ({cr})</li>
+            {materialDisplay}
           </ul>
 
           <u>Directions</u><br />

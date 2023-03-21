@@ -1,3 +1,5 @@
+import { NumericFormat } from 'react-number-format'
+
 const makeOption = (item) => {
     return <option key={item} value={item}>{item}</option>
 }
@@ -22,6 +24,24 @@ const displayNames = dictionary => {
         }
     }
     return list
+}
+
+const calculateBudget = (materials, budget) => {
+    for (const key in materials) {
+        budget -= materials[key]["gold"]
+    }
+
+    return budget
+}
+
+const printMaterials = (materials) => {
+    var inserts = []
+    
+    for (const key in materials) {
+        inserts.push(<li>{materials[key]["material"]} worth <NumericFormat value={materials[key]["gold"]} displayType='text' thousandSeparator=' ' />gp</li>)
+    }
+
+    return inserts
 }
 
 const displayToolSkill = (toolArray, skillArray) => {
@@ -92,5 +112,7 @@ export {
     displayToolSkill,
     checkRadio,
     getSelect,
-    getCheck
+    getCheck,
+    calculateBudget,
+    printMaterials
 }
