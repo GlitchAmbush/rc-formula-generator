@@ -1,6 +1,16 @@
 import { useState } from 'react'
+import { NumericFormat } from 'react-number-format'
 import './App.css'
 import { toolOptions, skillOptions } from './resources/options'
+import {
+  makeOption,
+  makeCROption,
+  displayNames,
+  displayToolSkill,
+  checkRadio,
+  getSelect,
+  getCheck
+} from './resources/functions.jsx'
 
 function App() {
   // Sets/States
@@ -11,98 +21,64 @@ function App() {
   const [intention, setIntention] = useState()
   const [toolSkill, setToolSkill] = useState('Tool, Tool; Skill')
   const [exotic, setExotic] = useState()
-  const [material, setMaterial] = useState()
-  const [directions, setDirections] = useState()
-  const [itemType, setItemType] = useState()
-  const [itemRarity, setItemRarity] = useState()
+  const [material, setMaterial] = useState([{ material: '', gold: ''}])
+  const [directions, setDirections] = useState([{ direction: ''}])
+  const [itemType, setItemType] = useState('Item Type')
+  const [itemRarity, setItemRarity] = useState('Rarity')
   const [itemDesc, setItemDesc] = useState()
-  const [attunement, setAttunement] = useState()
+  const [attunement, setAttunement] = useState('(requires attunement?)')
+  const [goldCost, setGoldCost] = useState(100)
+  const [cr, setCR] = useState("1 to 3")
 
-  // Functions
-  const makeOption = (item) => {
-    return <option key={item} value={item}>{item}</option>
-  }
-  
-  const displayNames = dictionary => {
-    var list = ""
-    var i = 0
-    for (var key of dictionary) {
-      i++
-      if (i == dictionary.length) {
-        list = list.concat(`${Object.values(key)}`)
-      } else {
-        list = list.concat(`${Object.values(key)}, `)
-      }
+  const calculateItemRequiremenets = (event) => {
+    var cr = ''
+    var goldCost = ''
+    var value = event.target.value
+
+    switch (value) {
+      case 'common':
+        goldCost = 100
+        break
+      case 'uncommon':
+        goldCost = 400
+        break
+      case 'rare':
+        goldCost = 4000
+        break
+      case 'very rare':
+        goldCost = 20000
+        break
+      default:
+        goldCost = 100
+        break
     }
-    return list
-  }
-
-  const displayToolSkill = (toolArray, skillArray) => {
-    var list = ""
-    for (var i = 0, len = toolArray.length; i < len; i++) {
-      if (i == toolArray.length-1) {
-        if (skillArray[0] == "None") {
-          list = list.concat(`${toolArray[i]}`)
-        } else {
-          list = list.concat(`${toolArray[i]}; `)
-        }
-      } else {
-        list = list.concat(`${toolArray[i]}, `)
-      }
+    
+    switch (value) {
+      case 'common':
+        cr = "1 to 3"
+        break
+      case 'uncommon':
+        cr = "4 to 8"
+        break
+      case 'rare':
+        cr = "9 to 12"
+        break
+      case 'very rare':
+        cr = "13 to 18"
+        break
+      default:
+        cr = "1 to 3"
+        break
     }
 
-    if (skillArray[0] != "None") {
-      for (var i = 0, len = skillArray.length; i < len; i++) {
-        if (i == skillArray.length-1) {
-          list = list.concat(`${skillArray[i]}`)
-        } else {
-          list = list.concat(`${skillArray[i]}, `)
-        }
-      }
-    }
-
-    return list
+    setCR(cr)
+    setGoldCost(goldCost)
   }
-  
-  const handleFormChange = (index, event) => {
+
+  const handleAssistantChange = (index, event) => {
     let data = [...assistant]
     data[index][event.target.name] = event.target.value
     setAssistant(data)
-  }
-
-  const checkRadio = () => {
-    var getSelected = document.querySelector('input[name="intention"]:checked')
-    if (getSelected != null) {
-      if (getSelected.value == "") {
-        return document.getElementById('other-intention').value
-      }
-      
-      return getSelected.value
-    }
-  }
-
-  const getSelect = (select) => {
-    var result = []
-    var options = select && select.options
-    var opt
-
-    for (var i = 0, len = options.length; i < len; i++) {
-      opt = options[i]
-
-      if (opt.selected) {
-        result.push(opt.value || opt.text)
-      }
-    }
-
-    return result
-  }
-
-  const getCheck = (check) => {
-    if (check) {
-      return ' (requires attunement)'
-    } 
-
-    return ""
   }
 
   const addAssistantFields = () => {
@@ -110,12 +86,12 @@ function App() {
     
     setAssistant([...assistant, newField])
   }
-  
-  const removeFields = (index) => {
+
+  const removeAssistantFields = (index) => {
     let data = [...assistant]
     if (index != 0) {
-      data.splice(index, 1)
-      setAssistant(data)
+        data.splice(index, 1)
+        setAssistant(data)
     }
   }
 
@@ -130,6 +106,7 @@ function App() {
     setIntention((intention) => checkRadio())
     setToolSkill((toolSkill) => displayToolSkill(toolList, skillList))
     setAttunement((attunement) => getCheck(document.getElementById("attunement").checked))
+    setItemType((itemType) => document.getElementById("itemType").value)
   }
 
   // Main App
@@ -153,7 +130,7 @@ function App() {
                     name="assistant"
                     placeholder='Assistant Name'
                     value={input.assistant}
-                    onChange={event => handleFormChange(index, event)}
+                    onChange={event => handleAssistantChange(index, event)}
                   />
                 </div>
                 )
@@ -166,9 +143,9 @@ function App() {
                     name="assistant"
                     placeholder='Assistant Name'
                     value={input.assistant}
-                    onChange={event => handleFormChange(index, event)}
+                    onChange={event => handleAssistantChange(index, event)}
                   />
-                  <button className='remove' onClick={() => removeFields(index)}>Remove</button>
+                  <button className='remove' onClick={() => removeAssistantFields(index)}>Remove</button>
                 </div>
               )
             })}
@@ -178,8 +155,15 @@ function App() {
           <div>
             <p>Item Being Researched</p>
             <input className='text-input' placeholder='Item Name' id="item" />
-            <div style={{paddingTop: "10px"}}>
-              Rarity: <select className='small-input' style={{marginRight: "20px"}} id="rarity">
+            <div style={{ paddingTop: "10px" }}>
+              <input className='small-input' id='itemType' style={{marginLeft: "0px", marginRight: "20px", width: "35%"}} placeholder='Item Type' />
+              Rarity: 
+              <select
+                className='small-input'
+                style={{ marginRight: "20px" }}
+                id="rarity"
+                onChange={event => calculateItemRequiremenets(event)}
+              >
                 <option value="common">Common</option>
                 <option value="uncommon">Uncommon</option>
                 <option value="rare">Rare</option>
@@ -199,15 +183,24 @@ function App() {
           </div>
 
           <div>
-            <p>Tools / Skills</p>
+            <p>Tools / Skills </p>
             <p style={{fontSize: "15px", fontWeight: 1}}>Note: Use CTRL/CMD to select multiple.</p>
             <select className="text-input modular-input" id="tools" multiple>{toolOptions.map(makeOption)}</select><br />
             <select className="text-input modular-input" id="skills" multiple>{skillOptions.map(makeOption)}</select><br />
           </div>
 
           <div>
-            <p>Exotic</p>
+            <p>Materials</p>
+            Exotic CR: {cr} <br />
+            Gold Cost: <NumericFormat value={goldCost} displayType='text' thousandSeparator=' '></NumericFormat>gp <br />
+            Current Budget: <NumericFormat value={goldCost} displayType='text' thousandSeparator=' '></NumericFormat>gp <br />
+            <input className='text-input' id="monster" style={{width: "45%", marginRight: "5px"}} placeholder='Exotic: Monster from Books, no HB' />
+            <select className='text-input' id="cr" style={{ width: "24%" }}>{makeCROption().map(makeOption)}</select><br />
+
+            <input className='text-input' placeholder='Flavor; Material Name' style={{ width: "45%", marginRight: "5px", marginTop: "10px" }} />
+            <input className='text-input' placeholder='Gold Cost (GP)' style={{ width: "20%" }}/>
           </div>
+
           <button onClick={submit}>Update</button>
         </div>
 
@@ -242,7 +235,7 @@ function App() {
           </ol>
 
           <b>{itemName}</b><br />
-          <i>Item Type, Rarity{attunement}</i><br />
+          <i>{itemType}, {itemRarity} {attunement}</i><br />
           Flavor description (Please don't go overboard)<br />
           <br />
           Item description, mechanics, etc etc.<br />
