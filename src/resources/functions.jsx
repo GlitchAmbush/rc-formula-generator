@@ -1,5 +1,68 @@
 import { NumericFormat } from 'react-number-format'
 
+const calculateItemRequirements = (event) => {
+    var cr = ''
+    var goldCost = ''
+    var dc = 11
+    var value = event.target.value
+
+    switch (value) {
+        case 'common':
+            goldCost = 100
+            break
+        case 'uncommon':
+            goldCost = 400
+            break
+        case 'rare':
+            goldCost = 4000
+            break
+        case 'very rare':
+            goldCost = 20000
+            break
+        default:
+            goldCost = 100
+            break
+    }
+    
+    switch (value) {
+        case 'common':
+            cr = "1 to 3"
+            break
+        case 'uncommon':
+            cr = "4 to 8"
+            break
+        case 'rare':
+            cr = "9 to 12"
+            break
+        case 'very rare':
+            cr = "13 to 18"
+            break
+        default:
+            cr = "1 to 3"
+            break
+    }
+
+    switch (value) {
+        case 'common':
+            dc = 11
+            break
+        case 'uncommon':
+            dc = 13
+            break
+        case 'rare':
+            dc = 15
+            break
+        case 'very rare':
+            dc = 17
+            break
+        default:
+            dc = 11
+            break
+    }
+
+    return { gp: goldCost, challenge: cr, difficult: dc, rarity: value}
+}
+
 const makeOption = (item) => {
     return <option key={item} value={item}>{item}</option>
 }
@@ -38,7 +101,17 @@ const printMaterials = (materials) => {
     var inserts = []
     
     for (const key in materials) {
-        inserts.push(<li>{materials[key]["material"]} worth <NumericFormat value={materials[key]["gold"]} displayType='text' thousandSeparator=' ' />gp</li>)
+        inserts.push(<li key={key}>{materials[key]["material"]} worth <NumericFormat value={materials[key]["gold"]} displayType='text' thousandSeparator=' ' />gp</li>)
+    }
+
+    return inserts
+}
+
+const printDirections = (directions) => {
+    var inserts = []
+    
+    for (const key in directions) {
+        inserts.push(<li key={key}>{directions[key]["direction"]}</li>)
     }
 
     return inserts
@@ -99,7 +172,7 @@ const getSelect = (select) => {
 
 const getCheck = (check) => {
     if (check) {
-        return '(requires attunement)'
+        return ' (requires attunement)'
     } 
 
     return ""
@@ -114,5 +187,7 @@ export {
     getSelect,
     getCheck,
     calculateBudget,
-    printMaterials
+    printMaterials,
+    printDirections,
+    calculateItemRequirements
 }
