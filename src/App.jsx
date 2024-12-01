@@ -112,12 +112,12 @@ function App() {
     var i = 0
 
     for (const key in material) {
-      materialList = materialList.concat(`\n\t- ${material[key]["material"]} worth ${material[key]["gold"]}gp`)
+      materialList = materialList.concat(`\n- ${material[key]["material"]} worth ${material[key]["gold"]}gp`)
     }
 
     for (const key in directions) {
       i++
-      directionList = directionList.concat(`\n\t${i}. ${directions[key]["direction"]}`)
+      directionList = directionList.concat(`\n${i}. ${directions[key]["direction"]}`)
     }
     
     if (itemDesc != '') {
@@ -133,9 +133,9 @@ function App() {
       `\n*Crafting Intention:* ${checkRadio()}` +
       `\n\n**FORMULA**` +
       `\n__Tools__` +
-      `\n\t- ${toolSkill}` +
+      `\n- ${toolSkill}` +
       `\n\n__Materials__` +
-      `\n\t- *Exotic:* ${exotic} (${cr})` +
+      `\n- *Exotic:* ${exotic} (${cr})` +
       materialList + 
       `\n\n__Directions__` +
       directionList +
